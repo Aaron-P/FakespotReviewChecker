@@ -1,0 +1,31 @@
+{
+    "manifest_version": 2,
+    "name": "Fakespot Review Checker",
+    "version": "1.0",
+    "description": "Analyze Amazon, TripAdvisor, Yelp, and Itunes App reviews.",
+    "developer": {
+        "name": "Aaron Papp",
+        "url": "https://github.com/Aaron-P/FakespotReviewChecker"
+    },
+    "icons": {
+        "24": "icon.svg",
+        "32": "icon.svg",
+        "48": "icon.svg",
+        "64": "icon.svg",
+        "96": "icon.svg"
+    },
+    "applications": {
+        "gecko": {
+            "strict_min_version": "57.0"
+        }
+    },
+    "permissions": [
+        "tabs"
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "page_action": {
+        "default_icon": "icon.svg"
+    }
+}
