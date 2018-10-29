@@ -1,0 +1,13 @@
+This extension works by sending parts of a page's url to Fakespot.com so that the website can analyze the reviews on the page.  I have tried to cut down the information that is sent to the minimum required.  Here is what url information is sent:
+
+Amazon:
+    The domain name and product id, this will be the url path portion after either "/dp/" or "/gp/product/" until the next "/".
+
+TripAdvisor:
+    The domain name and Attraction/Hotel/Restaurant url, this is everything after "*_Review-" until the next "/".
+
+Yelp:
+    The domain name and business url, this is everything after "/biz/" until the next "/".
+
+iTunes:
+    The domain name and app id, this will be the url path portion after "/app/" until the next "/".

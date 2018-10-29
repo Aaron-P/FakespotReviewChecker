@@ -88,6 +88,10 @@
         let url;
         try {
             url = new URL(tab.url);
+            //Remove parts that we for sure don't need.
+            url.username = "";
+            url.password = "";
+            url.hash = "";
         } catch (error) { }
 
         if (!url)
@@ -104,6 +108,7 @@
     function initPageAction(tab) {
         browser.pageAction.hide(tab.id);
 
+        //Strip out unneeded url data.
         let cleanUrl = getCleanUrl(tab);
         if (!cleanUrl)
             return;
@@ -112,9 +117,32 @@
             tabId: tab.id,
             title: "Analyze with Fakespot"
         });
-        browser.pageAction.show(tab.id);
+
+        //Only show the pageAction if the user has opted-in.
+        browser.storage.local.get({
+            optIn: false
+        }).then(results => {
+            if (!results.optIn)
+                return;
+            browser.pageAction.show(tab.id);
+        }, error => console.error(error));
     }
 
+    //Re-init page action when options change.
+    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        //For some reason window.close() isn't working on the opt-in page, so we'll close it here.
+        if (message.close)
+            browser.tabs.remove(sender.tab.id);
+
+        browser.tabs.query({}).then(tabs => {
+            tabs.forEach(tab => initPageAction(tab));
+        });
+        sendResponse({
+            pong: message.ping
+        });
+    });
+
+    //Send the user to the proper fakespot page if they click the button.
     browser.pageAction.onClicked.addListener(tab => {
         let cleanUrl = getCleanUrl(tab);
         if (!cleanUrl)
@@ -125,9 +153,39 @@
         });
     });
 
+    //Init page action on all existing tabs.
     browser.tabs.query({}).then(tabs => {
         tabs.forEach(tab => initPageAction(tab));
     });
 
+    //Re-init page action when tab changes.
     browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => initPageAction(tab));
+
+    //If the user hasn't been prompted to opt-in yet then show the prompt.
+    browser.storage.local.get({
+        optInShown: false
+    }).then(results => {
+        // if (results.optInShown)
+        //     return;
+
+        let height = 200;
+        let width = 500;
+
+        let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+        let dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+        let screenWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        let screenHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+        let left = ((screenWidth / 2) - (width / 2)) + dualScreenLeft;
+        let top = ((screenHeight / 2) - (height / 2)) + dualScreenTop;
+
+        browser.windows.create({
+            allowScriptsToClose: true,
+            height: height,
+            width: width,
+            left: left,
+            top: top,
+            type: "popup",
+            url: "opt-in.html"
+        });
+    }, error => console.error(error));
 }());
