@@ -165,8 +165,8 @@
     browser.storage.local.get({
         optInShown: false
     }).then(results => {
-        // if (results.optInShown)
-        //     return;
+        if (results.optInShown)
+            return;
 
         let height = 200;
         let width = 500;

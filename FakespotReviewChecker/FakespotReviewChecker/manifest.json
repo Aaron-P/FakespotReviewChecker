@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Fakespot Review Checker",
-    "version": "1.1",
+    "version": "1.2",
     "description": "Analyze Amazon, TripAdvisor, Yelp, and Itunes App reviews.",
     "developer": {
         "name": "Aaron Papp",
