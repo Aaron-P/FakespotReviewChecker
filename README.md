@@ -14,3 +14,5 @@ Currently the following websites are supported:
 * [yelp.com](https://www.yelp.com/)
 
 I am not affiliated with [Fakespot.com](https://www.fakespot.com/) so they may support other websites that I am not aware of.  If you know of any supported websites that aren't included above [make a new issue](https://github.com/Aaron-P/FakespotReviewChecker/issues) or [pull request](https://github.com/Aaron-P/FakespotReviewChecker/pulls) and I will add it.
+
+* [Privacy Information](https://raw.githubusercontent.com/Aaron-P/FakespotReviewChecker/master/PRIVACY)
