@@ -6,6 +6,9 @@ Amazon:
 TripAdvisor:
     The domain name and Attraction/Hotel/Restaurant url, this is everything after "*_Review-" until the next "/".
 
+Walmart:
+    The domain name and product id, this will be the number after "/ip/" at the end of the url path.
+
 Yelp:
     The domain name and business url, this is everything after "/biz/" until the next "/".
 

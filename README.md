@@ -9,6 +9,7 @@ Currently the following websites are supported:
 * [amazon.in](https://www.amazon.in/)
 * [itunes.apple.com](https://itunes.apple.com/) (Apps)
 * [tripadvisor.com](https://www.tripadvisor.com/) (Attractions/Hotels/Restaurants)
+* [walmart.com](https://www.walmart.com/)
 * [yelp.ca](https://www.yelp.ca/)
 * [yelp.co.uk](https://www.yelp.co.uk/)
 * [yelp.com](https://www.yelp.com/)
