@@ -1,4 +1,4 @@
-(function () {
+(async function () {
     "use strict";
 
     let optIn = document.getElementById("opt-in");

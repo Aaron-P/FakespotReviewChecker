@@ -238,5 +238,5 @@ pip-log.txt
 *.nupkg
 *.pem
 **/.vs/*
-/FakespotReviewChecker/7za.exe
-/FakespotReviewChecker/Firefox/*
+*/7za.exe
+*/Firefox/*

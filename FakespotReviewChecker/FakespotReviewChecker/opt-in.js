@@ -1,5 +1,5 @@
-(function () {
-"use strict";
+(async function () {
+    "use strict";
 
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("button-accept").addEventListener("click", () => {
