@@ -36,9 +36,9 @@
         if (path === null)
             return;
 
-        url.search = "";
-        url.pathname = path[1];
-        return url.href;
+        let clean = new URL(url.origin);
+        clean.pathname = path[1];
+        return clean.href;
     }
 
     function cleanUrlTripAdvisor(url) {
@@ -46,9 +46,9 @@
         if (path === null)
             return;
 
-        url.search = "";
-        url.pathname = path[1];
-        return url.href;
+        let clean = new URL(url.origin);
+        clean.pathname = path[1];
+        return clean.href;
     }
 
     function cleanUrlWalmart(url) {
@@ -56,9 +56,9 @@
         if (path === null)
             return;
 
-        url.pathname = "/ip/" + path[1];
-        url.search = "";
-        return url.href;
+        let clean = new URL(url.origin);
+        clean.pathname = "/ip/" + path[1];
+        return clean.href;
     }
 
     function cleanUrlYelp(url) {
@@ -66,33 +66,55 @@
         if (path === null)
             return;
 
-        url.search = "";
-        url.pathname = path[1];
-        return url.href;
+        let clean = new URL(url.origin);
+        clean.pathname = path[1];
+        return clean.href;
     }
 
-    function cleanUrlItunes(url) {
-        let path = url.pathname.match(/\/app\/(?:[^\/]+\/)*(id\d+)/);
+    function cleanUrlBestBuy(url) {
+        let path = url.pathname.match(/\/site\/[^\/]+\/(\d+\.p)/);
         if (path === null)
             return;
 
-        url.pathname = "/app/" + path[1];
-        url.search = "";
-        return url.href;
+        let clean = new URL(url.origin);
+        clean.pathname = "/site/a/" + path[1];
+        return clean.href
+    }
+
+    function cleanUrlSephora(url) {
+        let path = url.pathname.match(/\/product\/[^\/]+\-(P\d+)/);
+        if (path === null)
+            return;
+
+        let clean = new URL(url.origin);
+        clean.pathname = "/product/a-" + path[1];
+        return clean.href
+    }
+
+    function cleanUrlSteam(url) {
+        let path = url.pathname.match(/\/app\/(\d+)/);
+        if (path === null)
+            return;
+
+        let clean = new URL(url.origin);
+        clean.pathname = "/app/" + path[1];
+        return clean.href
     }
 
     const cleanUrlHandlers = [
-        { pattern: matchPatternToRegExp("*://*.amazon.ca/*"       ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.co.uk/*"    ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.com.au/*"   ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.com/*"      ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.in/*"       ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.tripadvisor.com/*" ), handler: cleanUrlTripAdvisor },
-        { pattern: matchPatternToRegExp("*://*.walmart.com/*"     ), handler: cleanUrlWalmart     },
-        { pattern: matchPatternToRegExp("*://*.yelp.ca/*"         ), handler: cleanUrlYelp        },
-        { pattern: matchPatternToRegExp("*://*.yelp.co.uk/*"      ), handler: cleanUrlYelp        },
-        { pattern: matchPatternToRegExp("*://*.yelp.com/*"        ), handler: cleanUrlYelp        },
-        { pattern: matchPatternToRegExp("*://itunes.apple.com/*"  ), handler: cleanUrlItunes      }
+        { pattern: matchPatternToRegExp("*://*.amazon.ca/*"            ), handler: cleanUrlAmazon      },
+        { pattern: matchPatternToRegExp("*://*.amazon.co.uk/*"         ), handler: cleanUrlAmazon      },
+        { pattern: matchPatternToRegExp("*://*.amazon.com.au/*"        ), handler: cleanUrlAmazon      },
+        { pattern: matchPatternToRegExp("*://*.amazon.com/*"           ), handler: cleanUrlAmazon      },
+        { pattern: matchPatternToRegExp("*://*.amazon.in/*"            ), handler: cleanUrlAmazon      },
+        { pattern: matchPatternToRegExp("*://*.bestbuy.com/*"          ), handler: cleanUrlBestBuy     },
+        { pattern: matchPatternToRegExp("*://*.sephora.com/*"          ), handler: cleanUrlSephora     },
+        { pattern: matchPatternToRegExp("*://*.tripadvisor.com/*"      ), handler: cleanUrlTripAdvisor },
+        { pattern: matchPatternToRegExp("*://*.walmart.com/*"          ), handler: cleanUrlWalmart     },
+        { pattern: matchPatternToRegExp("*://*.yelp.ca/*"              ), handler: cleanUrlYelp        },
+        { pattern: matchPatternToRegExp("*://*.yelp.co.uk/*"           ), handler: cleanUrlYelp        },
+        { pattern: matchPatternToRegExp("*://*.yelp.com/*"             ), handler: cleanUrlYelp        },
+        { pattern: matchPatternToRegExp("*://store.steampowered.com/*" ), handler: cleanUrlSteam       }
     ];
 
     function getCleanUrl(tab) {
