@@ -1,0 +1,37 @@
+{
+    "manifest_version": 2,
+    "name": "Fakespot Review Checker",
+    "version": "1.5.1",
+    "description": "Analyze Amazon, Best Buy, Sephora, Steam, TripAdvisor, Walmart, and Yelp reviews.",
+    "author": "Aaron Papp",
+    "homepage_url": "https://github.com/Aaron-P/FakespotReviewChecker",
+    "icons": {
+        "24": "src/icons/icon.svg",
+        "32": "src/icons/icon.svg",
+        "48": "src/icons/icon.svg",
+        "64": "src/icons/icon.svg",
+        "96": "src/icons/icon.svg"
+    },
+    "permissions": [
+        "storage",
+        "tabs"
+    ],
+    "background": {
+        "scripts": [
+            "src/background.js"
+        ]
+    },
+    "options_ui": {
+        "browser_style": true,
+        "page": "src/options.html"
+    },
+    "page_action": {
+        "default_icon": "src/icons/icon.svg"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{decca23b-316c-41a9-9fd2-f96ad9331e10}",
+            "strict_min_version": "57.0"
+        }
+    }
+}

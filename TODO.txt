@@ -1,1 +1,13 @@
 Support ReviewMeta.com, other review checks?
+
+//Only works for non-default themes
+let theme = await browser.theme.getCurrent();
+theme.colors.toolbar_field //url bar background, not normalized, could be any css color directive (hex, rgb(), etc.)
+
+https://stackoverflow.com/questions/46836065/change-color-of-svg-toolbar-icon-in-firefox-webextension
+
+#A3A3A3 is half between the default light and dark theme toolbar colors
+#8C8C8C is half between the default light and dark theme icon colors
+
+Opacity 102/255? how do they get what color to use for context-fill?
+

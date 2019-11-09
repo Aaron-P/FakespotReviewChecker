@@ -121,7 +121,7 @@
         let url;
         try {
             url = new URL(tab.url);
-            //Remove parts that we for sure don't need.
+            // Remove parts that we for sure don't need.
             url.username = "";
             url.password = "";
             url.hash = "";
@@ -138,87 +138,102 @@
         return cleanUrl;
     }
 
-    function initPageAction(tab) {
+    async function initPageAction(tab) {
         browser.pageAction.hide(tab.id);
 
-        //Strip out unneeded url data.
+        // Strip out unneeded url data.
         let cleanUrl = getCleanUrl(tab);
         if (!cleanUrl)
             return;
+
+        /*
+        const iconUrl = await browser.runtime.getURL("icon.svg");
+        console.log(iconUrl);
+        const theme = await browser.theme.getCurrent();
+        console.log(theme);
+        await browser.pageAction.setIcon({
+            tabId: tab.id,
+            path: iconUrl
+        });
+        */
 
         browser.pageAction.setTitle({
             tabId: tab.id,
             title: "Analyze with Fakespot"
         });
 
-        //Only show the pageAction if the user has opted-in.
-        browser.storage.local.get({
+        const options = await browser.storage.local.get({
             optIn: false
-        }).then(results => {
-            if (!results.optIn)
-                return;
-            browser.pageAction.show(tab.id);
-        }, error => console.error(error));
+        });
+
+        // Only show the pageAction if the user has opted-in.
+        if (!options.optIn)
+            return;
+        await browser.pageAction.show(tab.id);
     }
 
-    //Re-init page action when options change.
-    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        //For some reason window.close() isn't working on the opt-in page, so we'll close it here.
+    // Re-init page action when options change.
+    browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+        // For some reason window.close() isn't working on the opt-in page, so we'll close it here.
         if (message.close)
-            browser.tabs.remove(sender.tab.id);
+            await browser.tabs.remove(sender.tab.id);
 
-        browser.tabs.query({}).then(tabs => {
-            tabs.forEach(tab => initPageAction(tab));
-        });
+        const tabs = await browser.tabs.query({/* url: [] patterns? */})
+        tabs.forEach(async (tab) => await initPageAction(tab));
+
         sendResponse({
             pong: message.ping
         });
     });
 
-    //Send the user to the proper fakespot page if they click the button.
-    browser.pageAction.onClicked.addListener(tab => {
+    // Send the user to the proper fakespot page if they click the button.
+    browser.pageAction.onClicked.addListener(async (tab) => {
         let cleanUrl = getCleanUrl(tab);
         if (!cleanUrl)
             return;
 
-        browser.tabs.create({
+        await browser.tabs.create({
             url: "https://fakespot.com/analyze?url=" + encodeURIComponent(cleanUrl)
         });
     });
 
-    //Init page action on all existing tabs.
-    browser.tabs.query({}).then(tabs => {
-        tabs.forEach(tab => initPageAction(tab));
-    });
+    // Init page action on all existing tabs.
+    {
+        const tabs = await browser.tabs.query({/* url: [] patterns? */})
+        tabs.forEach(async (tab) => await initPageAction(tab));
+    }
 
-    //Re-init page action when tab changes.
-    browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => initPageAction(tab));
+    // Re-init page action when tab changes.
+    browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => await initPageAction(tab));
 
-    //If the user hasn't been prompted to opt-in yet then show the prompt.
-    browser.storage.local.get({
-        optInShown: false
-    }).then(results => {
-        if (results.optInShown)
-            return;
-
-        let height = 200;
-        let width = 500;
-
-        let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-        let dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
-        let screenWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-        let screenHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-        let left = ((screenWidth / 2) - (width / 2)) + dualScreenLeft;
-        let top = ((screenHeight / 2) - (height / 2)) + dualScreenTop;
-
-        browser.windows.create({
-            allowScriptsToClose: true,
-            height: height,
-            width: width,
-            left: left,
-            top: top,
-            type: "popup",
-            url: "opt-in.html"
+    // TODO: Do this on an install event instead?
+    // If the user hasn't been prompted to opt-in yet then show the prompt.
+    {
+        const results = await browser.storage.local.get({
+            optInShown: false
         });
-    }, error => console.error(error));
+
+        if (!results.optInShown) {
+            let height = 200;
+            let width = 500;
+
+            let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+            let dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+            let screenWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            let screenHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+            let left = ((screenWidth / 2) - (width / 2)) + dualScreenLeft;
+            let top = ((screenHeight / 2) - (height / 2)) + dualScreenTop;
+
+            await browser.windows.create({
+                allowScriptsToClose: true,
+                height: height,
+                width: width,
+                left: left,
+                top: top,
+                type: "popup",
+                url: "opt-in.html"
+            });
+        }
+    }
+
 }());
