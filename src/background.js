@@ -31,6 +31,8 @@
 
     //#endregion
 
+    //#region Url Cleaners
+
     function cleanUrlAmazon(url) {
         let path = url.pathname.match(/(\/(?:dp|gp\/product)\/[^\/]+)/);
         if (path === null)
@@ -101,23 +103,45 @@
         return clean.href
     }
 
+    function cleanBodyBuilding(url) {
+        let path = url.pathname.match(/\/store\/([^\/]+)\/(.+?)\.html?/);
+        if (path === null)
+            return;
+
+        let clean = new URL(url.origin);
+        clean.pathname = "/store/" + path[1] + "/" + path[2] + ".html";
+        return clean.href
+    }
+
+    //#endregion
+
     const cleanUrlHandlers = [
-        { pattern: matchPatternToRegExp("*://*.amazon.ca/*"            ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.co.uk/*"         ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.com.au/*"        ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.com/*"           ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.amazon.in/*"            ), handler: cleanUrlAmazon      },
-        { pattern: matchPatternToRegExp("*://*.bestbuy.com/*"          ), handler: cleanUrlBestBuy     },
-        { pattern: matchPatternToRegExp("*://*.sephora.com/*"          ), handler: cleanUrlSephora     },
-        { pattern: matchPatternToRegExp("*://*.tripadvisor.com/*"      ), handler: cleanUrlTripAdvisor },
-        { pattern: matchPatternToRegExp("*://*.walmart.com/*"          ), handler: cleanUrlWalmart     },
-        { pattern: matchPatternToRegExp("*://*.yelp.ca/*"              ), handler: cleanUrlYelp        },
-        { pattern: matchPatternToRegExp("*://*.yelp.co.uk/*"           ), handler: cleanUrlYelp        },
-        { pattern: matchPatternToRegExp("*://*.yelp.com/*"             ), handler: cleanUrlYelp        },
-        { pattern: matchPatternToRegExp("*://store.steampowered.com/*" ), handler: cleanUrlSteam       }
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.cn/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.co.jp/*"         ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.com.br/*"        ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.com.mx/*"        ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.de/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.es/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.fr/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.it/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.amazon.nl/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["reviewmeta.com"]                , pattern: matchPatternToRegExp("*://*.bodybuilding.com/*"     ), handler: cleanBodyBuilding   },
+        { engines: ["fakespot.com", "reviewmeta.com"], pattern: matchPatternToRegExp("*://*.amazon.ca/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["fakespot.com", "reviewmeta.com"], pattern: matchPatternToRegExp("*://*.amazon.co.uk/*"         ), handler: cleanUrlAmazon      },
+        { engines: ["fakespot.com", "reviewmeta.com"], pattern: matchPatternToRegExp("*://*.amazon.com.au/*"        ), handler: cleanUrlAmazon      },
+        { engines: ["fakespot.com", "reviewmeta.com"], pattern: matchPatternToRegExp("*://*.amazon.com/*"           ), handler: cleanUrlAmazon      },
+        { engines: ["fakespot.com", "reviewmeta.com"], pattern: matchPatternToRegExp("*://*.amazon.in/*"            ), handler: cleanUrlAmazon      },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.bestbuy.com/*"          ), handler: cleanUrlBestBuy     },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.sephora.com/*"          ), handler: cleanUrlSephora     },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.tripadvisor.com/*"      ), handler: cleanUrlTripAdvisor },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.walmart.com/*"          ), handler: cleanUrlWalmart     },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.yelp.ca/*"              ), handler: cleanUrlYelp        },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.yelp.co.uk/*"           ), handler: cleanUrlYelp        },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://*.yelp.com/*"             ), handler: cleanUrlYelp        },
+        { engines: ["fakespot.com"]                  , pattern: matchPatternToRegExp("*://store.steampowered.com/*" ), handler: cleanUrlSteam       }
     ];
 
-    function getCleanUrl(tab) {
+    function getCleanUrl(engines, tab) {
         let url;
         try {
             url = new URL(tab.url);
@@ -134,15 +158,25 @@
         if (!handler)
             return;
 
+        let handlerEngines = engines.filter(engine => handler.engines.includes(engine));
+        if (handlerEngines.length < 1)
+            return;//Handler doesn't work form any of the given engines.
+
         let cleanUrl = handler.handler(url);
-        return cleanUrl;
+        return { url: cleanUrl, engines: handlerEngines };
     }
 
     async function initPageAction(tab) {
         browser.pageAction.hide(tab.id);
 
+        const options = await browser.storage.local.get({
+            optIn: false,
+            engine: "fakespot.com"
+        });
+        const engines = options.engine.split("|");
+
         // Strip out unneeded url data.
-        let cleanUrl = getCleanUrl(tab);
+        let cleanUrl = getCleanUrl(engines, tab);
         if (!cleanUrl)
             return;
 
@@ -157,13 +191,16 @@
         });
         */
 
+        //ehhh
+        const title =
+            cleanUrl.engines.includes("fakespot.com") &&
+            cleanUrl.engines.includes("reviewmeta.com") ? "Analyze with Fakespot and ReviewMeta" :
+            cleanUrl.engines.includes("fakespot.com")   ? "Analyze with Fakespot"                :
+            cleanUrl.engines.includes("reviewmeta.com") ? "Analyze with ReviewMeta"              : null;
+
         browser.pageAction.setTitle({
             tabId: tab.id,
-            title: "Analyze with Fakespot"
-        });
-
-        const options = await browser.storage.local.get({
-            optIn: false
+            title: title
         });
 
         // Only show the pageAction if the user has opted-in.
@@ -171,6 +208,23 @@
             return;
         await browser.pageAction.show(tab.id);
     }
+
+    // Send the user to the proper fakespot page if they click the button.
+    browser.pageAction.onClicked.addListener(async (tab) => {
+        const options = await browser.storage.local.get({
+            engine: "fakespot.com"
+        });
+        const engines = options.engine.split("|");
+
+        let cleanUrl = getCleanUrl(engines, tab);
+        if (!cleanUrl)
+            return;
+
+        if (cleanUrl.engines.includes("fakespot.com"))
+            await browser.tabs.create({ url: "https://fakespot.com/analyze?url=" + encodeURIComponent(cleanUrl.url) });
+        if (cleanUrl.engines.includes("reviewmeta.com"))
+            await browser.tabs.create({ url: "https://reviewmeta.com/search?q=" + encodeURIComponent(cleanUrl.url) });
+    });
 
     // Re-init page action when options change.
     browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
@@ -183,17 +237,6 @@
 
         sendResponse({
             pong: message.ping
-        });
-    });
-
-    // Send the user to the proper fakespot page if they click the button.
-    browser.pageAction.onClicked.addListener(async (tab) => {
-        let cleanUrl = getCleanUrl(tab);
-        if (!cleanUrl)
-            return;
-
-        await browser.tabs.create({
-            url: "https://fakespot.com/analyze?url=" + encodeURIComponent(cleanUrl)
         });
     });
 
@@ -231,7 +274,7 @@
                 left: left,
                 top: top,
                 type: "popup",
-                url: "opt-in.html"
+                url: "src/opt-in.html"
             });
         }
     }

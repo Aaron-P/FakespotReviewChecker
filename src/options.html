@@ -8,7 +8,15 @@
         <form id="options" action="#">
             <p>
                 <input type="checkbox" id="opt-in" />
-                <label for="opt-in">I <a  target="_blank" href="https://raw.githubusercontent.com/Aaron-P/FakespotReviewChecker/master/PRIVACY">understand and accept</a> to send url information to Fakespot.com in order to analyze the reviews present on the page.</label>
+                <label for="opt-in">I <a  target="_blank" href="https://raw.githubusercontent.com/Aaron-P/FakespotReviewChecker/master/PRIVACY">understand and accept</a> sending url information to Fakespot.com and/or ReviewMeta.com in order to analyze the reviews present on the page.</label>
+            </p>
+            <p>
+                <label for="fakespot">Analyze reviews with:</label><br>
+                <select id="engine">
+                    <option value="fakespot.com">Fakespot.com</option>
+                    <option value="reviewmeta.com">ReviewMeta.com</option>
+                    <option value="fakespot.com|reviewmeta.com">Fakespot.com and ReviewMeta.com</option>
+                </select> 
             </p>
         </form>
         <script src="options.js"></script>
