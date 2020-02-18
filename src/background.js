@@ -34,7 +34,7 @@
     //#region Url Cleaners
 
     function cleanUrlAmazon(url) {
-        let path = url.pathname.match(/(\/(?:dp|gp\/product)\/[^\/]+)/);
+        let path = url.pathname.match(/(\/(?:dp|product-reviews|gp\/product)\/[^\/]+)/);
         if (path === null)
             return;
 
